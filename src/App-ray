@@ -1,0 +1,60 @@
+import React, { Component } from 'react';
+import './App.css';
+import firebase from "firebase";
+import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
+
+firebase.initializeApp({
+  apiKey: " ",
+  authDomain: " "
+})
+
+class App extends Component {
+  // Login Page
+  // NOT LOGGED IN - Initially not logged in
+  // Initially not signed in
+  state = { isSignedIn: false }
+  // Initiate Firebase Authentication for Twitter
+  uiConfig = {
+    signInFlow: "popup",
+    signInOptions: [
+      firebase.auth.TwitterAuthProvider.PROVIDER_ID
+    ],
+    callbacks: {
+      signInSuccess: () => false
+    }
+  }  
+
+  // LOGGED IN - User Authenticated
+  componentDidMount = ()=>{
+    firebase.auth().onAuthStateChanged(user => {
+      this.setState({ isSignedIn: !! user })
+      console.log("user", user)
+    })
+  }
+
+  // SHOW USER LOGIN INFO after Authentication
+  render() {
+    return (
+      <div className="App">
+        {this.state.isSignedIn ? (
+          <span>
+            {/*<div>Signed In!</div>*/}
+            <button onClick={() => firebase.auth().signOut()}>LOGOUT</button>
+            <br></br>
+            <img alt="profile_pic" src={firebase.auth().currentUser.photoURL} height="200" width="200"/>
+            <h3 style={{align:'left'}}>Welcome, {firebase.auth().currentUser.displayName}</h3>
+            <h3 style={{align:'left'}}>Email: {firebase.auth().currentUser.email}</h3>
+          </span>
+        ) : (
+          <StyledFirebaseAuth
+            uiConfig={this.uiConfig}
+            firebaseAuth={firebase.auth()}
+          />
+        )}
+      </div>
+    )
+  }
+}
+
+
+export default App;
